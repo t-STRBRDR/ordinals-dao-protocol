@@ -1,7 +1,7 @@
 # Examples
 
 One file per kind of inscription, written exactly as it would be inscribed (content type `application/json`).
-The rules for every field are in the [standard](../standard/README.md).
+The rules for every field are in the [protocol](../README.md).
 
 | File | What it is |
 | --- | --- |

@@ -2,7 +2,7 @@
 
 This guide shows how to get a correct vote inscription for an Ordinals DAO proposal, step by step, with
 UniSat, Sparrow, ord and other wallets. The rules behind it are in the
-[Ordinals DAO standard](../standard/README.md), section 8.
+[Ordinals DAO Protocol](../README.md), section 8.
 
 ## In short
 
@@ -53,7 +53,7 @@ n: 1
 | **Bitcoin** (`bitcoin` DAOs) | any address with sats: **bc1q…**, **3…** or **bc1p…** |
 
 The vote counts for exactly this address, with what it held at the proposal's block (section 4 of the
-standard). Assets on another address of the same wallet don't count for it.
+protocol). Assets on another address of the same wallet don't count for it.
 
 The signature must be a **BIP-322** signature. Older "legacy" signatures (BIP-137, often the default for bc1q
 and 3… addresses) are not accepted.
