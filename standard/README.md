@@ -1,4 +1,4 @@
-# Ordinals DAO standard
+# Ordinals DAO protocol
 
 ## About
 
