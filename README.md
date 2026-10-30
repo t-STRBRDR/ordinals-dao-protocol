@@ -2,7 +2,7 @@
 
 ## About
 
-This is a protocol that allows anyone to set up a DAO (Decentralized Autonomous Organisation) and/or proposal for any set of ordinals and run it entirely on Bitcoin. That can be Bitmaps, one or more collections, galleries, a hand-picked list of inscriptions, BRC-20 tokens and Runes. 
+This is a protocol that allows anyone to set up a DAO (Decentralized Autonomous Organisation) and/or proposal for any set of ordinals and run it entirely on Bitcoin. That can be for example Bitmaps, one or more collections, galleries, a hand-picked list of inscriptions, BRC-20 tokens, Runes or Bitcoin holders. 
 
 As of now no protocol existed to allow any community of inscription holders to align, discuss organize and make decisions immutable, publicly, inscribed forever on the Bitcoin network. This Ordinals DAO protocol (dao) enables anyone to set up such an organisation onchain. 
 
