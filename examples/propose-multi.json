@@ -1,0 +1,1 @@
+{"p":"dao","op":"propose","dao":"aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaai0","kind":"signal","title":"Which three projects should we fund?","body":"Pick up to three.","type":"multi","choices":["Explorer","Wallet plugin","Art grant","Education","Meetup"],"max_choices":3,"duration":1008,"quorum_pct":"5"}

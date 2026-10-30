@@ -1,0 +1,73 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Ordinals DAO Vote Builder</title>
+<style>:root{color-scheme:light dark;font:15px/1.5 system-ui,sans-serif}body{max-width:640px;margin:auto;padding:16px}input,textarea,pre{box-sizing:border-box;width:100%;font:13px ui-monospace,monospace;padding:6px}pre{border:1px solid #888;white-space:pre-wrap;word-break:break-all;min-height:2em}label{display:block;margin-top:12px;font-weight:600}#ok{font-weight:600}input[type=radio]{width:auto}</style>
+<h1>Ordinals DAO Vote Builder</h1>
+<p>Builds a signed vote (way 2 of the <a href="https://github.com/t-STRBRDR/ordinals-dao-protocol/blob/main/standard/README.md">Ordinals DAO standard</a>). Works with Taproot (bc1p…), SegWit (bc1q…) and nested SegWit (3…) addresses. Nothing leaves this page.</p>
+<label>1. Proposal ID</label><input id=p placeholder="…i0">
+<label>2. Choice</label><input type=radio name=r value=yes checked> yes <input type=radio name=r value=no> no <input type=radio name=r value=abstain> abstain
+<label>n (raise it to replace an earlier signed vote)</label><input id=n type=number min=1 value=1>
+<label>3. Sign this text with the address that holds your items <button id=cm>Copy</button> <button id=cu>Copy UniSat console command</button> <button id=su hidden>Sign with UniSat</button></label><pre id=t></pre>
+<label>4. Address (wallet must contain assets defined by DAO)*</label><input id=a placeholder="bc1p…, bc1q… or 3…">
+<label>5. Signature (BIP-322)</label><input id=s>
+<p id=ok></p>
+<label>6. Inscribe this as vote.json <button id=cj>Copy</button> <button id=dl>Download</button></label><pre id=j></pre>
+<p><small>* <b>Ordinals</b> (bitmaps, collections, inscriptions, runes, BRC-20): use the Taproot address (bc1p…) that holds them, e.g. the Ordinals address in Xverse or Leather, UniSat set to Taproot, a Sparrow Taproot wallet, or ord. <b>Bitcoin</b>: any address with sats, bc1q…, 3… or bc1p…, e.g. Sparrow, UniSat, or the payment address in Xverse or Leather.</small></p>
+<script>
+// secp256k1, SHA-256, RIPEMD-160, bech32(m), base58 and BIP-322 (simple: P2TR, P2WPKH, P2SH-P2WPKH) verification, no libraries
+const P=2n**256n-0x1000003d1n,N=0xfffffffffffffffffffffffffffffffebaaedce6af48a03bbfd25e8cd0364141n,
+G=[0x79be667ef9dcbbac55a06295ce870b07029bfcdb2dce28d959f2815b16f81798n,0x483ada7726a3c4655da4fbfc0e1108a8fd17b448a68554199c47d08ffb10d4b8n],
+md=(a,m=P)=>(a%m+m)%m,
+pw=(b,e)=>{let r=1n;for(b=md(b);e;e>>=1n,b=b*b%P)if(e&1n)r=r*b%P;return r},
+iv=(a,m=P)=>{let t=0n,u=1n,r=m,q,s=md(a,m);while(s){q=r/s;[t,u]=[u,t-q*u];[r,s]=[s,r-q*s]}return md(t,m)},
+ad=(A,B)=>{if(!A)return B;if(!B)return A;let l;if(A[0]==B[0]){if(md(A[1]+B[1])==0n)return null;l=3n*A[0]*A[0]*iv(2n*A[1])}else l=(B[1]-A[1])*iv(B[0]-A[0]);const x=md(l*l-A[0]-B[0]);return[x,md(l*(A[0]-x)-A[1])]},
+ml=(k,Q)=>{let R=null;for(;k;k>>=1n,Q=ad(Q,Q))if(k&1n)R=ad(R,Q);return R},
+lift=(x,o)=>{const c=md(x**3n+7n);let y=pw(c,(P+1n)/4n);if(x>=P||md(y*y)!=c)return;return[x,(y&1n)==BigInt(o)?y:P-y]},
+bg=b=>BigInt('0x'+([...b].map(x=>x.toString(16).padStart(2,'0')).join('')||0)),
+ct=(...a)=>{const o=[];for(const x of a)o.push(...x);return Uint8Array.from(o)},
+eq=(a,b)=>a.length==b.length&&a.every((x,i)=>x==b[i]),
+le=(v,n)=>Array.from({length:n},(_,i)=>v/256**i&255),
+u8=s=>new TextEncoder().encode(s),
+sha=(()=>{const K=[],H=[];for(let c=2,i=0;i<64;c++){let p=1;for(let d=2;d*d<=c;d++)if(c%d==0)p=0;if(p){if(i<8)H[i]=c**.5%1*2**32|0;K[i++]=Math.cbrt(c)%1*2**32|0}}
+const r=(x,n)=>x>>>n|x<<32-n;
+return m=>{const l=m.length,b=new Uint8Array(l+72>>6<<6),v=new DataView(b.buffer),w=[];b.set(m);b[l]=128;v.setUint32(b.length-4,l*8);let h=H.slice();
+for(let o=0;o<b.length;o+=64){let[a,B,c,d,e,f,g,k]=h;for(let i=0;i<64;i++){if(i<16)w[i]=v.getUint32(o+i*4);else{const x=w[i-15],y=w[i-2];w[i]=(r(x,7)^r(x,18)^x>>>3)+w[i-16]+(r(y,17)^r(y,19)^y>>>10)+w[i-7]|0}
+const t=k+(r(e,6)^r(e,11)^r(e,25))+(e&f^~e&g)+K[i]+w[i]|0,u=(r(a,2)^r(a,13)^r(a,22))+(a&B^a&c^B&c)|0;k=g;g=f;f=e;e=d+t|0;d=c;c=B;B=a;a=t+u|0}
+h=h.map((x,j)=>x+[a,B,c,d,e,f,g,k][j]|0)}const o=new Uint8Array(32),q=new DataView(o.buffer);h.forEach((x,j)=>q.setUint32(j*4,x));return o}})(),
+rmd=(()=>{const X=s=>[...s].map(c=>parseInt(c,16)),zl=X('0123456789abcdef74d1a6f3c0952eb83ae49f812706db5c19ba08c4d37fe56240597c2ae138b6fd'),
+zr=X('5e7092b4d6f81a3c6b370d5aef8c4912f5137e69b8c2a04d86413bf05c2d97aecfa4158762de039b'),sl=X('befc5879bdef6798768db97f7cf9b7dcbd67e9dfe8d65c75bcefef989e56865c9f5b68dc5cdeb856'),
+sr=X('899bdff5778beec69df7c89b77c76fdb97fb866ecd5edd75f58bee6e69c9c5f885c9c5e68d65fdbb'),KL=[0,0x5a827999,0x6ed9eba1,0x8f1bbcdc,0xa953fd4e],KR=[0x50a28be6,0x5c4dd124,0x6d703ef3,0x7a6d76e9,0],
+r=(x,n)=>x<<n|x>>>32-n,f=(j,x,y,z)=>j==0?x^y^z:j==1?x&y|~x&z:j==2?(x|~y)^z:j==3?x&z|y&~z:x^(y|~z);
+return m=>{const l=m.length,b=new Uint8Array(l+72>>6<<6),v=new DataView(b.buffer);b.set(m);b[l]=128;v.setUint32(b.length-8,l*8,!0);let h=[0x67452301,0xefcdab89,0x98badcfe,0x10325476,0xc3d2e1f0];
+for(let o=0;o<b.length;o+=64){const w=Array.from({length:16},(_,i)=>v.getUint32(o+i*4,!0));let[a,B,c,d,e]=h,[A,C,D,E,F]=h,t;
+for(let j=0;j<80;j++){const k=j>>4;t=r(a+f(k,B,c,d)+w[zl[j]]+KL[k]|0,sl[j])+e|0;a=e;e=d;d=r(c,10);c=B;B=t;t=r(A+f(4-k,C,D,E)+w[zr[j]]+KR[k]|0,sr[j])+F|0;A=F;F=E;E=r(D,10);D=C;C=t}
+h=[h[1]+c+E|0,h[2]+d+F|0,h[3]+e+A|0,h[4]+a+C|0,h[0]+B+D|0]}const o=new Uint8Array(20),q=new DataView(o.buffer);h.forEach((x,j)=>q.setUint32(j*4,x,!0));return o}})(),
+dsha=m=>sha(sha(m)),h160=m=>rmd(sha(m)),
+tg=(t,...m)=>{const h=sha(u8(t));return sha(ct(h,h,...m))},
+seg=a=>{a=a.toLowerCase();const i=a.lastIndexOf('1'),h=a.slice(0,i),d=[...a.slice(i+1)].map(x=>'qpzry9x8gf2tvdw0s3jn54khce6mua7l'.indexOf(x));
+if(!['bc','tb','bcrt'].includes(h)||d.length<7||d.includes(-1)||d[0]>1)return;let c=1,q=0,n=0;const o=[];
+for(const v of[...[...h].map(x=>x.charCodeAt()>>5),0,...[...h].map(x=>x.charCodeAt()&31),...d]){const b=c>>>25;c=(c&0x1ffffff)<<5^v;[0x3b6a57b2,0x26508e6d,0x1ea119fa,0x3d4233dd,0x2a1462b3].forEach((g,j)=>{if(b>>j&1)c^=g})}
+if(c!=(d[0]?0x2bc830a3:1))return;for(const v of d.slice(1,-6)){q=(q<<5|v)&4095;n+=5;if(n>=8)o.push(q>>(n-=8)&255)}return q&(1<<n)-1?void 0:{v:d[0],p:Uint8Array.from(o)}},
+b58=a=>{let n=0n;for(const c of a){const i='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'.indexOf(c);if(i<0)return;n=n*58n+BigInt(i)}const o=[];for(;n;n>>=8n)o.unshift(Number(n&255n));for(const c of a){if(c!='1')break;o.unshift(0)}return Uint8Array.from(o)},
+spk=a=>{if(/^[23]/.test(a)){const d=b58(a);if(!d||d.length!=25||![5,196].includes(d[0])||!eq(dsha(d.slice(0,21)).slice(0,4),d.slice(21)))return;const h=d.slice(1,21);return{t:'sh',h,s:[169,20,...h,135]}}
+const w=seg(a);return!w?void 0:w.v&&w.p.length==32?{t:'tr',h:w.p,s:[81,32,...w.p]}:!w.v&&w.p.length==20?{t:'wpkh',h:w.p,s:[0,20,...w.p]}:void 0},
+schnorr=(pk,m,s)=>{const Q=lift(bg(pk),0),r=bg(s.slice(0,32)),z=bg(s.slice(32));if(!Q||r>=P||z>=N)return!1;
+const R=ad(ml(z,G),ml(N-md(bg(tg('BIP0340/challenge',s.slice(0,32),pk,m)),N),Q));return!!R&&!(R[1]&1n)&&R[0]==r},
+ecdsa=(q,z,d)=>{if(d[0]!=48||d[2]!=2)return!1;const l=d[3],r=bg(d.slice(4,4+l)),s=bg(d.slice(6+l,6+l+d[5+l])),Q=lift(bg(q.slice(1)),q[0]&1);if(!Q||!r||!s||r>=N||s>=N)return!1;
+const u=iv(s,N),R=ad(ml(md(z*u,N),G),ml(md(r*u,N),Q));return!!R&&md(R[0],N)==r},
+verify=(a,m,s)=>{const k=spk(a.trim());if(!k)return'unsupported address (use bc1p…, bc1q… or 3…)';let w;try{w=Uint8Array.from(atob(s.trim()),x=>x.charCodeAt())}catch{return'signature is not base64'}
+const it=[];let i=1;for(let n=w[0];n-->0&&i<w.length;i+=1+w[i])it.push(w.slice(i+1,i+1+w[i]));if(!w[0]||i!=w.length||it.length!=w[0])return'not a BIP-322 signature';
+const z4=le(0,4),z8=le(0,8),out=ct(z8,[1,106]),
+tx=ct(z4,[1],new Uint8Array(32),[255,255,255,255,34,0,32],tg('BIP0322-signed-message',u8(m)),z4,[1],z8,[k.s.length],k.s,z4),op=ct(dsha(tx),z4),no='signature does not match this address and text';
+if(k.t=='tr'){const g=it[0];if(it.length!=1||!(g.length==64||g.length==65&&g[64]==1))return'not a BIP-322 signature for a Taproot address';
+return schnorr(k.h,tg('TapSighash',ct([0,g.length-64],z4,z4,sha(op),sha(z8),sha(ct([k.s.length],k.s)),sha(z4),sha(out),[0],z4)),g.slice(0,64))||no}
+const[g,q]=it;if(it.length!=2||q.length!=33||q[0]>>1!=1||g.at(-1)!=1)return'not a BIP-322 signature for this address';const pk=h160(q);
+if(!eq(k.t=='wpkh'?pk:h160(ct([0,20],pk)),k.h))return no;
+return ecdsa(q,bg(dsha(ct(z4,dsha(op),dsha(z4),op,[25,118,169,20],pk,[136,172],z8,z4,dsha(out),z4,le(1,4)))),g.slice(0,-1))||no};
+if(typeof document=='object'){const $=id=>document.getElementById(id);let J='';
+const go=()=>{const p=$('p').value.trim(),c=document.querySelector('[name=r]:checked').value,n=Math.max(1,parseInt($('n').value)||1),
+t=`DAO vote\nproposal: ${p}\nchoice: ${JSON.stringify(c)}\nn: ${n}`;$('t').textContent=t;
+const id=/^[0-9a-f]{64}i\d+$/.test(p),r=$('a').value&&$('s').value?verify($('a').value,t,$('s').value):0;
+$('ok').textContent=(r===true?'✓ Signature is valid.':r?'✗ '+r:'Paste address and signature.')+(id?'':' ✗ The proposal ID is not valid (64 hex characters, then i and a number).');$('ok').style.color=r===true&&id?'green':'';
+J=r===true&&id?JSON.stringify({p:'dao',op:'vote',proposal:p,choice:c,addr:$('a').value.trim(),sig:$('s').value.trim(),n}):'';$('j').textContent=J};
+document.oninput=go;go();const cp=x=>navigator.clipboard.writeText(x);$('cm').onclick=()=>cp($('t').textContent);const T=()=>$('t').textContent;$('cu').onclick=()=>cp(`await unisat.requestAccounts();s=await unisat.signMessage(${JSON.stringify(T())},'bip322-simple');copy(s);s`);if(window.unisat){$('su').hidden=0;$('su').onclick=async()=>{try{$('a').value=(await unisat.requestAccounts())[0];$('s').value=await unisat.signMessage(T(),'bip322-simple');go()}catch(e){$('ok').textContent='✗ '+(e.message||e)}}}$('cj').onclick=()=>J&&cp(J);
+$('dl').onclick=()=>{if(!J)return;const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([J],{type:'application/json'}));a.download='vote.json';a.click()}}
+</script></html>

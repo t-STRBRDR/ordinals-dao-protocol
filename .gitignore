@@ -1,0 +1,10 @@
+# Only these files are published. Everything else in this folder stays local and can't be pushed.
+/*
+!/.gitignore
+!/README.md
+!/LICENSE
+!/standard/
+!/examples/
+!/tools/
+/tools/copy.html
+.DS_Store
