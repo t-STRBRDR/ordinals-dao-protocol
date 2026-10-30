@@ -291,6 +291,7 @@ of a branch, and can adopt new rules (section 7).
    inscription since block 824,544 this is the same as inscription-number order, but anyone can check it from
    Bitcoin alone.
 2. That order gives the proposal numbers: the DAO's first valid proposal is **#1**, the next is **#2**, and so on.
+3. Proposal #1 is the DAO's **genesis proposal**, whatever its kind.
    Proposals carry no self-chosen number, so numbers can't be faked or duplicated.
 
 ### 6.3 Voting window and result

@@ -23,7 +23,7 @@ links between the files:
 | Placeholder | Stands for |
 | --- | --- |
 | `aaaa…aaaai0` | the DAO (its deploy inscription) |
-| `bbbb…bbb1i0` … `bbbb…bbb5i0` | proposals #1 (discussion) to #5 (binding proposal) |
+| `bbbb…bbb1i0` … `bbbb…bbb5i0` | proposals #1 (the genesis proposal, a discussion) to #5 (binding proposal) |
 | `cccc…cccci0` | the rules inscription, which is also the branch ID once it is adopted |
 | `dddd…ddddi0` | a message |
 
